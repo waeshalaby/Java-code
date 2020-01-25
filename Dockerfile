@@ -1,5 +1,6 @@
 FROM maven
 
+
 EXPOSE 8080
 
 COPY target/*.jar service.jar
