@@ -1,0 +1,78 @@
+#dev
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+  name: simple-app
+  namespace: preprod-automation
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    deploymentConfig: simple-app
+  strategy:
+    activeDeadlineSeconds: 21600
+    recreateParams:
+      timeoutSeconds: 600
+    resources: {}
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        application: simple-app
+        deploymentConfig: simple-app
+      name: simple-app
+    spec:
+      containers:
+        - image: >-
+            docker-registry.default.svc:5000/preprod-automation/simple-app@sha256:ad04da3b04e97a67ac05b666a26118839d011d57568128615b55c29edb59017b
+          imagePullPolicy: Always
+          name: simple-app
+          ports:
+            - containerPort: 8778
+              name: jolokia
+              protocol: TCP
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - image: 'fluent/fluent-bit:1.2.0-debug'
+          imagePullPolicy: Always
+          name: fluentbit-sidecar
+          volumeMounts:
+            - mountPath: /var/log/app
+              name: shared-logs
+            - mountPath: /fluent-bit/etc/
+              name: fluentbit-conf          
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 75
+      volumes:
+        - emptyDir: {}
+          name: shared-logs
+        - configMap:
+            defaultMode: 420
+            name: fluentbit-conf
+          name: fluentbit-conf      
+  test: false
+  triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - simple-app
+        from:
+          kind: ImageStreamTag
+          name: 'simple-app:latest'
+          namespace: sonarqube
+        lastTriggeredImage: >-
+          docker-registry.default.svc:5000/sonarqube/simple-app@sha256:ad04da3b04e97a67ac05b666a26118839d011d57568128615b55c29edb59017b
+      type: ImageChange
+    - type: ConfigChange

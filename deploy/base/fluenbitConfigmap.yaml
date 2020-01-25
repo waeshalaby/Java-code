@@ -1,0 +1,54 @@
+apiVersion: v1
+data:
+  fluent-bit.conf: "[SERVICE]\r\n    # Flush\r\n    # =====\r\n    # Set an interval of seconds before to flush records to a destination\r\n    Flush        5\r\n\r\n    # Daemon\r\n    # ======\r\n    # Instruct Fluent Bit to run in foreground or background mode.\r\n    Daemon       Off\r\n\r\n    # Log_Level\r\n    # =========\r\n    # Set the verbosity level of the service, values can be:\r\n    #\r\n    # - error\r\n    # - warning\r\n    # - info\r\n    # - debug\r\n    # - trace\r\n    #\r\n    # By default 'info' is set, that means it includes 'error' and 'warning'.\r\n    Log_Level    debug\r\n\r\n    # Parsers_File\r\n    # ============\r\n    # Specify an optional 'Parsers' configuration file\r\n    Parsers_File parsers.conf\r\n    Plugins_File plugins.conf\r\n\r\n    # HTTP Server\r\n    # ===========\r\n    # Enable/Disable the built-in HTTP Server for metrics\r\n    HTTP_Server  Off\r\n    HTTP_Listen  0.0.0.0\r\n    HTTP_Port    2020\r\n\r\n[INPUT]\r\n    Name        tail\r\n    Multiline   On\r\n    Parser_Firstline structuredHead\r\n    Parser_1    structured\r\n    Path        /var/log/app/structured/*\r\n    Tag         structured\r\n    #Parser      springboot\r\n    # Interval Sec\r\n    # ====\r\n    # Read interval (sec) Default: 1\r\n    #Interval_Sec 1\r\n\r\n#[INPUT]\r\n    #Name        tail\r\n    #Multiline   On\r\n    #Parser_Firstline structuredHead\r\n    #Parser_1    parseAll\r\n    #Path        /var/log/app/all/*\r\n    #Tag         all\r\n    #Parser      springboot\r\n    # Interval Sec\r\n    # ====\r\n    # Read interval (sec) Default: 1\r\n    #Interval_Sec 1\r\n\r\n[OUTPUT]\r\n    Name    es\r\n    Host    3.135.211.1194\r\n    Port    9200\r\n    Match   structured\r\n    HTTP_User   elastic\r\n    HTTP_Passwd elastic123\r\n    Logstash_Format True\r\n    Logstash_Prefix dxllogs\r\n    Type    _doc\r\n\r\n#[OUTPUT]\r\n#    Name    es\r\n#    Host    10.230.84.134\r\n#    Port    9200\r\n#    Match   all\r\n#    HTTP_User   elastic\r\n#    HTTP_Passwd elastic123\r\n#    Logstash_Format True\r\n#    Logstash_Prefix all-logstash-dxl-usage-cons\r\n#    Type    _doc"
+  parsers.conf: "[PARSER]\r\n    Name   structuredHead\r\n    Format regex\r\n    Regex  ^(?<timestamp>[0-9]{1,2}-[0-9]{1,2}-[0-9]{1,4} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}\\.[0-9]{1,3})\\s*((\\[(?<traceID>[\\w]*|\\s*)\\s*,\\s*(?<spanID>[\\w]*|\\s*)\\]))\\s*(\\[.*\\])\\s*([\\w]*)\r\n    \r\n[PARSER]\r\n    Name   structured\r\n    Format regex\r\n    Regex  ((userAgent\\.original=(?<userAgentoriginal>.+?)(\\s*~%\\s*))|null\\s*~%\\s*)((http\\.request\\.method=(?<httprequestmethod>.+?)(\\s*~%\\s*))(http\\.request\\.header=(?<httprequestheader>.+?)(\\s*~%\\s*))(http\\.request\\.parameters=(?<httprequestparameters>.+?)(\\s*~%\\s*))(http\\.response\\.header=(?<httpresponseheader>.+?)(\\s*~%\\s*))(http\\.response\\.statusCode=(?<httpresponsestatusCode>.+?)(\\s*~%\\s*))|null\\s*~%\\s*)((service\\.serviceName=(?<serviceserviceName>.+?)(\\s*~%\\s*))(service\\.useCase=(?<serviceuseCase>.+?)(\\s*~%\\s*))(service\\.elapsedTime=(?<serviceelapsedTime>.+?)(\\s*~%\\s*))(service\\.elapsedLogTime=(?<serviceelapsedLogTime>.+?)(\\s*~%\\s*))(service\\.serviceRequest=(?<serviceserviceRequest>.+?)(\\s*~%\\s*))(service\\.serviceResponse=(?<serviceserviceResponse>.+?)(\\s*~%\\s*))(service\\.layer\\.layerName=(?<servicelayerlayerName>.+?)(\\s*~%\\s*))(service\\.layer\\.methodName=(?<servicelayermethodName>.+?)(\\s*~%\\s*))|null\\s*~%\\s*)((url\\.original=(?<urloriginal>.+?)(\\s*~%\\s*))|null\\s*~%\\s*)(user\\.msisdn=(?<usermsisdn>.+?)(\\s*~%\\s*)|null\\s*~%\\s*)((error\\.message\\.description=(?<errormessagedescription>.+?)(\\s*~%\\s*)|null\\s*~%\\s*)(error\\.code=(?<errorcode>.+?)(\\s*~%\\s*))(error\\.stackTrace=(?<errorstackTrace>.+?)(\\s*~%\\s*))|null\\s*~%)\r\n    Time_Key timestamp\r\n    Time_Format %d-%m-%Y %H:%M:%S.%L\r\n    \r\n[PARSER]\r\n    Name   parseAll\r\n    Format regex\r\n    Regex  (?<log>.*)\r\n    "
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: >
+      {"apiVersion":"v1","data":{"fluent-bit.conf":"[SERVICE]\r\n    #
+      Flush\r\n    # =====\r\n    # Set an interval of seconds before to flush
+      records to a destination\r\n    Flush        5\r\n\r\n    # Daemon\r\n   
+      # ======\r\n    # Instruct Fluent Bit to run in foreground or background
+      mode.\r\n    Daemon       Off\r\n\r\n    # Log_Level\r\n    #
+      =========\r\n    # Set the verbosity level of the service, values can
+      be:\r\n    #\r\n    # - error\r\n    # - warning\r\n    # - info\r\n    #
+      - debug\r\n    # - trace\r\n    #\r\n    # By default 'info' is set, that
+      means it includes 'error' and 'warning'.\r\n    Log_Level   
+      debug\r\n\r\n    # Parsers_File\r\n    # ============\r\n    # Specify an
+      optional 'Parsers' configuration file\r\n    Parsers_File
+      parsers.conf\r\n    Plugins_File plugins.conf\r\n\r\n    # HTTP
+      Server\r\n    # ===========\r\n    # Enable/Disable the built-in HTTP
+      Server for metrics\r\n    HTTP_Server  Off\r\n    HTTP_Listen 
+      0.0.0.0\r\n    HTTP_Port    2020\r\n\r\n[INPUT]\r\n    Name       
+      tail\r\n    Multiline   On\r\n    Parser_Firstline structuredHead\r\n   
+      Parser_1    structured\r\n    Path        /var/log/app/structured/*\r\n   
+      Tag         structured\r\n    #Parser      springboot\r\n    # Interval
+      Sec\r\n    # ====\r\n    # Read interval (sec) Default: 1\r\n   
+      #Interval_Sec 1\r\n\r\n#[INPUT]\r\n    #Name        tail\r\n   
+      #Multiline   On\r\n    #Parser_Firstline structuredHead\r\n   
+      #Parser_1    parseAll\r\n    #Path        /var/log/app/all/*\r\n   
+      #Tag         all\r\n    #Parser      springboot\r\n    # Interval
+      Sec\r\n    # ====\r\n    # Read interval (sec) Default: 1\r\n   
+      #Interval_Sec 1\r\n\r\n[OUTPUT]\r\n    Name    es\r\n    Host   
+      3.135.211.119\r\n    Port    9200\r\n    Match   structured\r\n   
+      Logstash_Format True\r\n    Logstash_Prefix dxllogs\r\n    Type   
+      _doc\r\n\r\n#[OUTPUT]\r\n#    Name    es\r\n#    Host   
+      3.135.211.119\r\n#    Port    9200\r\n#    Match   all\r\n#    HTTP_User  
+      elastic\r\n#    HTTP_Passwd elastic123\r\n#    Logstash_Format
+      True\r\n#    Logstash_Prefix all-logstash-dxl-usage-cons\r\n#    Type   
+      _doc","parsers.conf":"[PARSER]\r\n    Name   structuredHead\r\n    Format
+      regex\r\n    Regex 
+      ^(?\u003ctimestamp\u003e[0-9]{1,2}-[0-9]{1,2}-[0-9]{1,4}
+      [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}\\.[0-9]{1,3})\\s*((\\[(?\u003ctraceID\u003e[\\w]*|\\s*)\\s*,\\s*(?\u003cspanID\u003e[\\w]*|\\s*)\\]))\\s*(\\[.*\\])\\s*([\\w]*)\r\n   
+      \r\n[PARSER]\r\n    Name   structured\r\n    Format regex\r\n    Regex 
+      ((userAgent\\.original=(?\u003cuserAgentoriginal\u003e.+?)(\\s*~%\\s*))|null\\s*~%\\s*)((http\\.request\\.method=(?\u003chttprequestmethod\u003e.+?)(\\s*~%\\s*))(http\\.request\\.header=(?\u003chttprequestheader\u003e.+?)(\\s*~%\\s*))(http\\.request\\.parameters=(?\u003chttprequestparameters\u003e.+?)(\\s*~%\\s*))(http\\.response\\.header=(?\u003chttpresponseheader\u003e.+?)(\\s*~%\\s*))(http\\.response\\.statusCode=(?\u003chttpresponsestatusCode\u003e.+?)(\\s*~%\\s*))|null\\s*~%\\s*)((service\\.serviceName=(?\u003cserviceserviceName\u003e.+?)(\\s*~%\\s*))(service\\.useCase=(?\u003cserviceuseCase\u003e.+?)(\\s*~%\\s*))(service\\.elapsedTime=(?\u003cserviceelapsedTime\u003e.+?)(\\s*~%\\s*))(service\\.elapsedLogTime=(?\u003cserviceelapsedLogTime\u003e.+?)(\\s*~%\\s*))(service\\.serviceRequest=(?\u003cserviceserviceRequest\u003e.+?)(\\s*~%\\s*))(service\\.serviceResponse=(?\u003cserviceserviceResponse\u003e.+?)(\\s*~%\\s*))(service\\.layer\\.layerName=(?\u003cservicelayerlayerName\u003e.+?)(\\s*~%\\s*))(service\\.layer\\.methodName=(?\u003cservicelayermethodName\u003e.+?)(\\s*~%\\s*))|null\\s*~%\\s*)((url\\.original=(?\u003curloriginal\u003e.+?)(\\s*~%\\s*))|null\\s*~%\\s*)(user\\.msisdn=(?\u003cusermsisdn\u003e.+?)(\\s*~%\\s*)|null\\s*~%\\s*)((error\\.message\\.description=(?\u003cerrormessagedescription\u003e.+?)(\\s*~%\\s*)|null\\s*~%\\s*)(error\\.code=(?\u003cerrorcode\u003e.+?)(\\s*~%\\s*))(error\\.stackTrace=(?\u003cerrorstackTrace\u003e.+?)(\\s*~%\\s*))|null\\s*~%)\r\n   
+      Time_Key timestamp\r\n    Time_Format %d-%m-%Y %H:%M:%S.%L\r\n   
+      \r\n[PARSER]\r\n    Name   parseAll\r\n    Format regex\r\n    Regex 
+      (?\u003clog\u003e.*)\r\n   
+      "},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"app":"dxl-usage-consumption"},"name":"fluentbit-conf","namespace":"dxl-new"}}
+  creationTimestamp: '2019-09-18T11:24:37Z'
+  labels:
+  name: fluentbit-conf
+  namespace: dev-automation
+ 
