@@ -26,7 +26,7 @@ stages {
               steps {
                         script {
                                 withSonarQubeEnv('SonarQube') {
-                                sh "mvn clean install -DskipTests"
+                                sh "mvn clean install"
                               }
                      }
           }
